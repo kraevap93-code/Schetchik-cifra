@@ -1,0 +1,1722 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Счетчик цифры</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-color: #facc15; /* yellow-400 */
+            --accent-text: #111827;
+            --border-color: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --header-bg: #f9fafb;
+            --input-bg: #ffffff;
+        }
+
+        html.dark {
+            --bg-primary: #3f3f46;     /* zinc-700 */
+            --bg-secondary: #27272a;     /* zinc-800 */
+            --text-primary: #f4f4f5;     /* zinc-100 */
+            --text-secondary: #a1a1aa;     /* zinc-400 */
+            --accent-color: #facc15;     /* yellow-400 */
+            --accent-text: #18181b;     /* zinc-900 */
+            --border-color: #52525b;     /* zinc-600 */
+            --card-bg: #3f3f46;         /* zinc-700 */
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --header-bg: #3f3f46;
+            --input-bg: #27272a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card { background-color: var(--card-bg); box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color); }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-btn.active-filter {
+            background-color: var(--accent-color);
+            color: var(--accent-text);
+            border-color: var(--accent-color);
+        }
+        .filter-btn:not(.active-filter) {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .filter-btn:not(.active-filter):hover { background-color: var(--bg-secondary); }
+        
+        .form-input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.5);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-submit {
+            color: var(--accent-text);
+            background-color: var(--accent-color);
+        }
+        .btn-submit:hover {
+            filter: brightness(0.9);
+        }
+        .btn-secondary {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background-color: var(--bg-secondary);
+        }
+
+
+        .machine-input-group {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        .machine-input-group h3 {
+            color: var(--text-primary);
+        }
+        .machine-input-group label {
+            color: var(--text-secondary);
+        }
+        html.dark .machine-input-group .form-input {
+             background-color: var(--bg-secondary);
+             border-color: var(--border-color);
+        }
+
+
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+        table {
+            width: 100%;
+            min-width: 1400px;
+        }
+        #table-ananas table, #table-gofra table {
+            min-width: 600px;
+        }
+        #table-etiketka table {
+            min-width: 800px;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            white-space: normal;
+        }
+        th {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            background-color: var(--bg-primary);
+        }
+        tbody tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .th-machine {
+            padding-top: 8px;
+            padding-bottom: 8px;
+            background-color: var(--accent-color);
+            color: var(--accent-text);
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-right: 2px solid var(--bg-primary);
+        }
+        html.dark .th-machine {
+            border-right: 2px solid var(--bg-secondary);
+        }
+        .th-machine-last {
+            border-right: none;
+        }
+        .th-sub {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-text);
+            background-color: var(--accent-color);
+            line-height: 1.2;
+        }
+
+        .date-cell {
+            font-weight: 500;
+            white-space: nowrap;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background-color: var(--bg-primary);
+            border-right: 2px solid var(--border-color);
+        }
+        
+        tbody tr:hover .date-cell {
+             background-color: var(--bg-secondary);
+        }
+
+        thead th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background-color: var(--accent-color);
+        }
+
+        .date-day {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .vertical-divider {
+            border-right: 2px solid var(--border-color);
+        }
+        
+        .cell-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            min-height: 24px;
+            padding-right: 24px;
+        }
+        .cell-wrapper .edit-cell-btn {
+            display: none;
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        tr:hover .cell-wrapper .edit-cell-btn {
+            display: inline-flex;
+        }
+        .cell-wrapper input.cell-input {
+            width: 100%;
+            text-align: center;
+            background-color: var(--input-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            padding: 2px;
+            color: var(--text-primary);
+        }
+
+        .actions-cell {
+            position: sticky;
+            right: 0;
+            background-color: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+        }
+         tbody tr:hover .actions-cell {
+             background-color: var(--bg-secondary);
+        }
+        thead th:last-child {
+            position: sticky;
+            right: 0;
+            z-index: 11;
+        }
+
+        .text-negative {
+            color: #ef4444; /* red-500 */
+        }
+        html.dark .text-negative {
+            color: #f87171; /* red-400 */
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+
+    </style>
+</head>
+<body class="">
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="card p-8 rounded-2xl w-full max-w-md">
+            <h2 id="auth-title" class="text-3xl font-bold text-center mb-6">Вход</h2>
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-secondary mb-1">Email</label>
+                    <input type="email" id="email" required class="form-input">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-secondary mb-1">Пароль</label>
+                    <input type="password" id="password" required class="form-input">
+                </div>
+                <div id="confirm-password-container" class="hidden">
+                    <label for="confirm-password" class="block text-sm font-medium text-secondary mb-1">Подтвердите пароль</label>
+                    <input type="password" id="confirm-password" class="form-input">
+                </div>
+                <p id="auth-message" class="text-sm text-center text-red-500"></p>
+                <button id="auth-button" type="submit" class="btn btn-submit w-full !mt-6">Войти</button>
+            </form>
+            <p class="text-center mt-4 text-sm text-secondary">
+                <span id="auth-toggle-prompt">Нет аккаунта?</span>
+                <a href="#" id="toggle-auth-mode" class="font-semibold text-yellow-500 hover:underline">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="p-4 sm:p-6 lg:p-8 hidden">
+        <header class="mb-8">
+            <div class="flex flex-col items-center">
+                 <div class="w-full flex justify-between items-start mb-4">
+                     <div class="text-sm">
+                         <div class="text-secondary">Вы вошли как:</div>
+                         <div id="user-email" class="font-semibold text-primary"></div>
+                         <button id="logout-btn" class="text-red-500 hover:underline text-xs">Выйти</button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button id="history-btn" class="btn-submit px-4 py-1.5 rounded-lg text-sm font-semibold">История</button>
+                        <label for="theme-toggle-input" title="Переключить тему" class="relative w-16 h-8 flex items-center bg-sky-200 dark:bg-zinc-700 rounded-full cursor-pointer p-1 transition-colors duration-300">
+                            <input type="checkbox" id="theme-toggle-input" class="sr-only peer">
+                            <span class="w-6 h-6 bg-yellow-400 dark:bg-slate-300 rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center peer-checked:translate-x-8">
+                                <svg class="h-4 w-4 text-white block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-15.66l-.707.707M4.04 19.96l-.707.707M21 12h-1M4 12H3m16.96-7.96l-.707-.707M4.04 4.04l-.707-.707M12 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                                <svg class="h-4 w-4 text-zinc-800 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-bold">Счетчик цифры</h1>
+            </div>
+        </header>
+
+        <main>
+            <!-- Filters Card -->
+            <div class="card p-4 rounded-2xl mb-8">
+                <div id="filters" class="flex flex-wrap gap-2 justify-center">
+                    <button data-table="obvodny" class="filter-btn active-filter">Обводный</button>
+                    <button data-table="ananas" class="filter-btn">Ананас</button>
+                    <button data-table="gofra" class="filter-btn">Гофра</button>
+                    <button data-table="etiketka" class="filter-btn">Этикетка</button>
+                </div>
+            </div>
+            
+            <!-- Add New Entry Form -->
+            <div id="add-entry-container" class="mb-8">
+                 <div class="card p-4 sm:p-6 rounded-2xl">
+                    <h2 id="form-title" class="text-2xl font-semibold text-primary mb-6">Добавить новую запись</h2>
+                    
+                    <!-- Form for Obvodny -->
+                    <form id="add-obvodny-form" class="space-y-4">
+                        <div class="max-w-xs">
+                            <label for="new-date" class="block text-sm font-medium text-secondary">Дата</label>
+                            <input type="date" id="new-date" class="mt-1 form-input" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                            <!-- iGen -->
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">iGen</h3>
+                                <div>
+                                    <label for="new-igen-all-prints" class="block text-sm font-medium">Счетчик All prints</label>
+                                    <input type="number" id="new-igen-all-prints" class="mt-1 form-input" required>
+                                </div>
+                                <div>
+                                    <label for="new-igen-max-format" class="block text-sm font-medium">Макс формат</label>
+                                    <input type="number" id="new-igen-max-format" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                            <!-- Iridesse -->
+                            <div class="space-y-2 machine-input-group">
+                                 <h3 class="font-semibold">Iridesse</h3>
+                                <div>
+                                    <label for="new-iridesse-total" class="block text-sm font-medium">Счетчик Total</label>
+                                    <input type="number" id="new-iridesse-total" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                             <!-- Konica -->
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">Konica 12000</h3>
+                                <div>
+                                    <label for="new-konica-total" class="block text-sm font-medium">Счетчик Total (A4)</label>
+                                    <input type="number" id="new-konica-total" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                            <!-- Ricoh 9200 -->
+                            <div class="space-y-2 machine-input-group">
+                                 <h3 class="font-semibold">Ricoh 9200</h3>
+                                <div>
+                                    <label for="new-ricoh9200-color" class="block text-sm font-medium">Счетчик Цветной</label>
+                                    <input type="number" id="new-ricoh9200-color" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                             <!-- Ricoh 9500 -->
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">Ricoh 9500</h3>
+                                <div>
+                                    <label for="new-ricoh9500-color" class="block text-sm font-medium">Счетчик Цветной</label>
+                                    <input type="number" id="new-ricoh9500-color" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="new-notes" class="block text-sm font-medium text-secondary">Примечания</label>
+                            <input type="text" id="new-notes" class="mt-1 form-input">
+                        </div>
+
+                        <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
+                    </form>
+
+                    <!-- Form for Ananas -->
+                    <form id="add-ananas-form" class="space-y-4 hidden">
+                        <div class="max-w-xs">
+                            <label for="new-ananas-date" class="block text-sm font-medium text-secondary">Дата</label>
+                            <input type="date" id="new-ananas-date" class="mt-1 form-input" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">Ricoh 9200</h3>
+                                <div>
+                                    <label for="new-ananas-ricoh9200-color" class="block text-sm font-medium">Счетчик Цветной</label>
+                                    <input type="number" id="new-ananas-ricoh9200-color" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="new-ananas-notes" class="block text-sm font-medium text-secondary">Примечания</label>
+                            <input type="text" id="new-ananas-notes" class="mt-1 form-input">
+                        </div>
+                        <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
+                    </form>
+
+                     <!-- Form for Gofra -->
+                    <form id="add-gofra-form" class="space-y-4 hidden">
+                        <div class="max-w-xs">
+                            <label for="new-gofra-date" class="block text-sm font-medium text-secondary">Дата</label>
+                            <input type="date" id="new-gofra-date" class="mt-1 form-input" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">Гофра</h3>
+                                <div>
+                                    <label for="new-gofra-counter" class="block text-sm font-medium">Счетчик</label>
+                                    <input type="number" id="new-gofra-counter" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="new-gofra-notes" class="block text-sm font-medium text-secondary">Примечания</label>
+                            <input type="text" id="new-gofra-notes" class="mt-1 form-input">
+                        </div>
+                        <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
+                    </form>
+
+                    <!-- Form for Etiketka -->
+                    <form id="add-etiketka-form" class="space-y-4 hidden">
+                        <div class="max-w-xs">
+                            <label for="new-etiketka-date" class="block text-sm font-medium text-secondary">Дата</label>
+                            <input type="date" id="new-etiketka-date" class="mt-1 form-input" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">GIP</h3>
+                                <div>
+                                    <label for="new-etiketka-gip-counter" class="block text-sm font-medium">Счетчик на утро</label>
+                                    <input type="number" id="new-etiketka-gip-counter" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                            <div class="space-y-2 machine-input-group">
+                                <h3 class="font-semibold">DMS</h3>
+                                <div>
+                                    <label for="new-etiketka-dms-counter" class="block text-sm font-medium">Счетчик на утро</label>
+                                    <input type="number" id="new-etiketka-dms-counter" class="mt-1 form-input" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="new-etiketka-notes" class="block text-sm font-medium text-secondary">Примечания</label>
+                            <input type="text" id="new-etiketka-notes" class="mt-1 form-input">
+                        </div>
+                        <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Data Table Card -->
+            <div class="card p-4 sm:p-6 rounded-2xl">
+                 <div id="loading-state" class="text-center p-8 text-secondary">Загрузка данных...</div>
+                <div id="tables-container" class="hidden">
+                    <!-- Obvodny Table -->
+                    <div id="table-obvodny" class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="th-machine vertical-divider">Дата</th>
+                                    <th colspan="3" class="th-machine">iGen</th>
+                                    <th colspan="2" class="th-machine">Iridesse</th>
+                                    <th colspan="2" class="th-machine">Konica 12000</th>
+                                    <th colspan="2" class="th-machine">Ricoh 9200</th>
+                                    <th colspan="2" class="th-machine">Ricoh 9500</th>
+                                    <th rowspan="2" class="vertical-divider th-machine">Итого</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Примечания</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Действия</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-sub">Счетчик<br>All prints</th>
+                                    <th class="th-sub">Макс<br>формат</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                    <th class="th-sub">Счетчик<br>Total</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                    <th class="th-sub">Счетчик Total<br>Counter (A4)</th>
+                                    <th class="th-sub vertical-divider">За сутки<br>(в А3)</th>
+                                    <th class="th-sub">Счетчик<br>Цветной</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                    <th class="th-sub">Счетчик<br>Цветной</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Ananas Table -->
+                    <div id="table-ananas" class="table-container hidden">
+                        <table>
+                           <thead>
+                                <tr>
+                                    <th rowspan="2" class="th-machine vertical-divider">Дата</th>
+                                    <th colspan="2" class="th-machine">Ricoh 9200</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Примечания</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Действия</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-sub">Счетчик<br>Цветной</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                     <!-- Gofra Table -->
+                    <div id="table-gofra" class="table-container hidden">
+                        <table>
+                           <thead>
+                                <tr>
+                                    <th rowspan="2" class="th-machine vertical-divider">Дата</th>
+                                    <th colspan="2" class="th-machine">Гофра</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Примечания</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Действия</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-sub">Счетчик</th>
+                                    <th class="th-sub vertical-divider">За<br>сутки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Etiketka Table -->
+                    <div id="table-etiketka" class="table-container hidden">
+                        <table>
+                           <thead>
+                                <tr>
+                                    <th rowspan="2" class="th-machine vertical-divider">Дата</th>
+                                    <th colspan="2" class="th-machine">GIP</th>
+                                    <th colspan="2" class="th-machine">DMS</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Примечания</th>
+                                    <th rowspan="2" class="th-machine th-machine-last">Действия</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-sub">Счетчик<br>на утро</th>
+                                    <th class="th-sub vertical-divider">Разница с<br>предыдущим</th>
+                                    <th class="th-sub">Счетчик<br>на утро</th>
+                                    <th class="th-sub vertical-divider">Разница с<br>предыдущим</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="card p-6 rounded-lg w-full max-w-sm">
+            <p id="confirm-modal-message" class="text-center mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="confirm-modal-cancel" class="btn btn-secondary">Отмена</button>
+                <button id="confirm-modal-confirm" class="btn bg-red-500 hover:bg-red-600 text-white">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal hidden">
+        <div class="card p-0 rounded-lg w-full max-w-3xl flex flex-col" style="height: 90vh;">
+            <div class="p-4 border-b border-border-color flex justify-between items-center">
+                <h2 class="text-xl font-semibold">История изменений</h2>
+                <button id="history-modal-close" class="p-1 text-secondary hover:text-primary">&times;</button>
+            </div>
+            <div id="history-content" class="p-6 overflow-y-auto flex-grow">
+                <!-- History logs will be injected here -->
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, deleteDoc, writeBatch, getDocs, query, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwHzOCUo3CBJ-OxTXe3Wh7HNM8lHLOYA4",
+            authDomain: "schetchik-cifra.firebaseapp.com",
+            projectId: "schetchik-cifra",
+            storageBucket: "schetchik-cifra.appspot.com",
+            messagingSenderId: "1069722082967",
+            appId: "1:1069722082967:web:8c5195414d7c07b489f648"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- GLOBAL STATE ---
+            let currentEditingCell = null;
+            let unsubscribeObvodny = null;
+            let allObvodnyData = [];
+
+            let unsubscribeAnanas = null;
+            let allAnanasData = [];
+
+            let unsubscribeGofra = null;
+            let allGofraData = [];
+            
+            let unsubscribeEtiketka = null;
+            let allEtiketkaData = [];
+            
+            let unsubscribeHistory = null;
+            let allHistoryData = [];
+
+            let onConfirmCallback = null; // For custom confirm modal
+
+            // --- UI ELEMENTS ---
+            const authScreen = document.getElementById('auth-screen');
+            const appScreen = document.getElementById('app-screen');
+            const authForm = document.getElementById('auth-form');
+            const authTitle = document.getElementById('auth-title');
+            const authButton = document.getElementById('auth-button');
+            const confirmPasswordContainer = document.getElementById('confirm-password-container');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const authMessage = document.getElementById('auth-message');
+            const toggleAuthModeLink = document.getElementById('toggle-auth-mode');
+            const authTogglePrompt = document.getElementById('auth-toggle-prompt');
+            const userEmailSpan = document.getElementById('user-email');
+            const logoutBtn = document.getElementById('logout-btn');
+            const loadingState = document.getElementById('loading-state');
+            const tablesContainer = document.getElementById('tables-container');
+
+            const filters = document.getElementById('filters');
+            const formTitle = document.getElementById('form-title');
+            
+            const addObvodnyForm = document.getElementById('add-obvodny-form');
+            const obvodnyTableBody = document.querySelector('#table-obvodny tbody');
+            
+            const addAnanasForm = document.getElementById('add-ananas-form');
+            const ananasTableBody = document.querySelector('#table-ananas tbody');
+            
+            const addGofraForm = document.getElementById('add-gofra-form');
+            const gofraTableBody = document.querySelector('#table-gofra tbody');
+
+            const addEtiketkaForm = document.getElementById('add-etiketka-form');
+            const etiketkaTableBody = document.querySelector('#table-etiketka tbody');
+
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmModalMessage = document.getElementById('confirm-modal-message');
+            const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel');
+            const confirmModalConfirmBtn = document.getElementById('confirm-modal-confirm');
+
+            const historyBtn = document.getElementById('history-btn');
+            const historyModal = document.getElementById('history-modal');
+            const historyModalClose = document.getElementById('history-modal-close');
+            const historyContent = document.getElementById('history-content');
+
+
+            let isLoginMode = true;
+
+            // --- AUTHENTICATION ---
+            function updateAuthView() {
+                authMessage.textContent = '';
+                if (isLoginMode) {
+                    authTitle.textContent = 'Вход';
+                    authButton.textContent = 'Войти';
+                    confirmPasswordContainer.classList.add('hidden');
+                    confirmPasswordInput.required = false;
+                    authTogglePrompt.textContent = 'Нет аккаунта? ';
+                    toggleAuthModeLink.textContent = 'Зарегистрироваться';
+                } else {
+                    authTitle.textContent = 'Регистрация';
+                    authButton.textContent = 'Создать аккаунт';
+                    confirmPasswordContainer.classList.remove('hidden');
+                    confirmPasswordInput.required = true;
+                    authTogglePrompt.textContent = 'Уже есть аккаунт? ';
+                    toggleAuthModeLink.textContent = 'Войти';
+                }
+            }
+            
+            toggleAuthModeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                isLoginMode = !isLoginMode;
+                updateAuthView();
+            });
+
+            authForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                if (isLoginMode) {
+                    signInWithEmailAndPassword(auth, email, password)
+                        .catch(error => { authMessage.textContent = error.message; });
+                } else {
+                    const confirmPassword = confirmPasswordInput.value;
+                    if (password !== confirmPassword) {
+                        authMessage.textContent = 'Пароли не совпадают.';
+                        return;
+                    }
+                    createUserWithEmailAndPassword(auth, email, password)
+                         .then(() => {
+                             isLoginMode = true;
+                             updateAuthView();
+                             authMessage.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+                             authMessage.classList.remove('text-red-500');
+                             authMessage.classList.add('text-green-500');
+                         })
+                        .catch(error => { authMessage.textContent = error.message; });
+                }
+            });
+
+            logoutBtn.addEventListener('click', () => signOut(auth));
+            
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    authScreen.style.display = 'none';
+                    appScreen.style.display = 'block';
+                    userEmailSpan.textContent = user.email;
+                    
+                    if (unsubscribeObvodny) unsubscribeObvodny(); 
+                    if (unsubscribeAnanas) unsubscribeAnanas();
+                    if (unsubscribeGofra) unsubscribeGofra();
+                    if (unsubscribeEtiketka) unsubscribeEtiketka();
+                    if (unsubscribeHistory) unsubscribeHistory();
+                    
+                    seedInitialData().then(() => {
+                        listenForObvodnyData();
+                        listenForAnanasData();
+                        listenForGofraData();
+                        listenForEtiketkaData();
+                        listenForHistoryData();
+                    }).catch(console.error);
+                } else {
+                    authScreen.style.display = 'flex';
+                    appScreen.style.display = 'none';
+                    if (unsubscribeObvodny) unsubscribeObvodny();
+                    if (unsubscribeAnanas) unsubscribeAnanas();
+                    if (unsubscribeGofra) unsubscribeGofra();
+                    if (unsubscribeEtiketka) unsubscribeEtiketka();
+                    if (unsubscribeHistory) unsubscribeHistory();
+                }
+            });
+
+            // --- THEME ---
+            const themeToggle = document.getElementById('theme-toggle-input');
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    themeToggle.checked = true;
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeToggle.checked = false;
+                }
+            };
+            themeToggle.addEventListener('change', () => {
+                const newTheme = themeToggle.checked ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            // --- TAB/FILTER SWITCHING ---
+            filters.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') return;
+
+                const selectedTable = e.target.dataset.table;
+
+                // Update button styles
+                document.querySelectorAll('#filters .filter-btn').forEach(btn => {
+                    btn.classList.toggle('active-filter', btn.dataset.table === selectedTable);
+                });
+
+                // Hide all tables and forms
+                document.querySelectorAll('.table-container').forEach(table => table.classList.add('hidden'));
+                document.querySelectorAll('#add-entry-container form').forEach(form => form.classList.add('hidden'));
+
+                // Show selected table and form
+                const tableToShow = document.getElementById(`table-${selectedTable}`);
+                const formToShow = document.getElementById(`add-${selectedTable}-form`);
+
+                if (tableToShow) tableToShow.classList.remove('hidden');
+                
+                if (formToShow) {
+                    formToShow.classList.remove('hidden');
+                    formTitle.textContent = `Добавить запись: ${e.target.textContent}`;
+                } else {
+                    formTitle.textContent = 'Добавить новую запись';
+                }
+            });
+
+            // --- CONFIRMATION MODAL ---
+            function showConfirmModal(message, onConfirm) {
+                onConfirmCallback = onConfirm;
+                confirmModalMessage.textContent = message;
+                confirmModal.classList.remove('hidden');
+            }
+
+            function hideConfirmModal() {
+                onConfirmCallback = null;
+                confirmModal.classList.add('hidden');
+            }
+
+            confirmModalCancelBtn.addEventListener('click', hideConfirmModal);
+
+            confirmModalConfirmBtn.addEventListener('click', () => {
+                if (onConfirmCallback) {
+                    onConfirmCallback();
+                }
+                hideConfirmModal();
+            });
+
+            // --- HISTORY MODAL ---
+            historyBtn.addEventListener('click', () => historyModal.classList.remove('hidden'));
+            historyModalClose.addEventListener('click', () => historyModal.classList.add('hidden'));
+            historyModal.addEventListener('click', (e) => {
+                if (e.target === historyModal) {
+                    historyModal.classList.add('hidden');
+                }
+            });
+
+            // --- DATA LOGIC (GENERAL) ---
+            const obvodnyCollectionRef = collection(db, 'obvodny_data');
+            const ananasCollectionRef = collection(db, 'ananas_data');
+            const gofraCollectionRef = collection(db, 'gofra_data');
+            const etiketkaCollectionRef = collection(db, 'etiketka_data');
+            const historyCollectionRef = collection(db, 'history_logs');
+
+            // --- DATA LISTENERS ---
+            function listenForObvodnyData() {
+                const q = query(obvodnyCollectionRef, orderBy('date'));
+                unsubscribeObvodny = onSnapshot(q, (snapshot) => {
+                    allObvodnyData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    loadingState.style.display = 'none';
+                    tablesContainer.classList.remove('hidden');
+                    renderObvodnyTable();
+                }, error => {
+                    console.error("Error fetching obvodny data:", error);
+                    loadingState.textContent = 'Ошибка загрузки данных.';
+                });
+            }
+            
+            function listenForAnanasData() {
+                const q = query(ananasCollectionRef, orderBy('date'));
+                unsubscribeAnanas = onSnapshot(q, (snapshot) => {
+                    allAnanasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderAnanasTable();
+                }, error => {
+                    console.error("Error fetching ananas data:", error);
+                });
+            }
+            
+            function listenForGofraData() {
+                const q = query(gofraCollectionRef, orderBy('date'));
+                unsubscribeGofra = onSnapshot(q, (snapshot) => {
+                    allGofraData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderGofraTable();
+                }, error => {
+                    console.error("Error fetching gofra data:", error);
+                });
+            }
+
+            function listenForEtiketkaData() {
+                const q = query(etiketkaCollectionRef, orderBy('date'));
+                unsubscribeEtiketka = onSnapshot(q, (snapshot) => {
+                    allEtiketkaData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderEtiketkaTable();
+                }, error => {
+                    console.error("Error fetching etiketka data:", error);
+                });
+            }
+            
+            function listenForHistoryData() {
+                const q = query(historyCollectionRef, orderBy('timestamp', 'desc'));
+                unsubscribeHistory = onSnapshot(q, (snapshot) => {
+                    allHistoryData = snapshot.docs.map(doc => doc.data());
+                    renderHistory();
+                }, error => {
+                    console.error("Error fetching history:", error);
+                })
+            }
+
+            // --- DATA PROCESSING & RENDERING (GENERAL) ---
+            function formatDate(dateStr) {
+                 const date = new Date(dateStr + 'T00:00:00');
+                 if (isNaN(date.getTime())) return { main: 'Invalid Date', day: '' };
+
+                const mainFormatted = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+                const dayOfWeekFormatted = new Intl.DateTimeFormat('ru-RU', { weekday: 'short' }).format(date);
+                
+                return { main: mainFormatted.replace(' г.', ''), day: dayOfWeekFormatted };
+            }
+            
+            function formatNumber(numStr) {
+                const num = Number(numStr);
+                if (numStr === null || numStr === undefined || isNaN(num)) return '';
+                if (num === 0 && (numStr === '' || numStr === null || numStr === undefined)) return '';
+                return num.toLocaleString('ru-RU');
+            }
+
+            function createEditableCell(value, date, columnKey, tableType) {
+                 const formattedValue = (columnKey === 'notes') ? value : formatNumber(value);
+                 return `<div class="cell-wrapper">
+                             <span>${formattedValue || ''}</span>
+                             <button class="edit-cell-btn p-1 text-secondary hover:text-accent-color transition" data-table="${tableType}" data-date="${date}" data-column="${columnKey}" title="Редактировать">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z" /></svg>
+                             </button>
+                         </div>`;
+            }
+            
+            function createActionsCell(date, hasData, tableType) {
+                if (!hasData) return '';
+                return `<div class="flex items-center justify-center gap-2">
+                            <button data-table="${tableType}" data-date="${date}" class="delete-btn p-1 text-secondary hover:text-red-500 transition" title="Удалить">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>`;
+            }
+            
+            const tableNamesMap = {
+                obvodny: "Обводный",
+                ananas: "Ананас",
+                gofra: "Гофра",
+                etiketka: "Этикетка"
+            };
+
+            function renderHistory() {
+                if (allHistoryData.length === 0) {
+                    historyContent.innerHTML = `<p class="text-secondary text-center">История изменений пуста.</p>`;
+                    return;
+                }
+                
+                let html = '';
+                allHistoryData.forEach(log => {
+                    const timestamp = log.timestamp.toDate();
+                    const formattedDate = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(timestamp);
+                    const formattedTime = new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' }).format(timestamp);
+                    const tableName = tableNamesMap[log.table] || log.table;
+
+                    html += `
+                        <div class="border-b border-border-color py-3">
+                            <p class="font-semibold text-primary">${log.action} в "${tableName}"</p>
+                            <p class="text-sm text-secondary">
+                                ${log.details}
+                            </p>
+                            <p class="text-xs text-secondary mt-1">
+                                ${log.userEmail} &bull; ${formattedDate} в ${formattedTime}
+                            </p>
+                        </div>
+                    `;
+                });
+                historyContent.innerHTML = html;
+            }
+
+            // --- RENDER OBVODNY TABLE ---
+            function renderObvodnyTable() {
+                let displayData = [...allObvodnyData];
+                
+                const today = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+
+                const dateToId = (date) => date.toISOString().slice(0, 10);
+                const todayId = dateToId(today);
+                const tomorrowId = dateToId(tomorrow);
+
+                const existingIds = new Set(displayData.map(row => row.id));
+
+                if (!existingIds.has(todayId)) {
+                    displayData.push({ id: todayId, date: todayId });
+                }
+                if (!existingIds.has(tomorrowId)) {
+                    displayData.push({ id: tomorrowId, date: tomorrowId });
+                }
+                
+                const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+                let lastCounters = { igenPrints: null, igenMaxFormat: null, iridesseTotal: null, konicaTotal: null, ricoh9200Color: null, ricoh9500Color: null };
+                
+                sortedData.forEach(row => {
+                    const igenPrints = parseInt(row.igenPrints, 10);
+                    const igenMaxFormat = parseInt(row.igenMaxFormat, 10);
+                    const iridesseTotal = parseInt(row.iridesseTotal, 10);
+                    const konicaTotal = parseInt(row.konicaTotal, 10);
+                    const ricoh9200Color = parseInt(row.ricoh9200Color, 10);
+                    const ricoh9500Color = parseInt(row.ricoh9500Color, 10);
+
+                    let hasData = false;
+                    
+                    if (!isNaN(igenPrints) && igenPrints > 0) {
+                        hasData = true;
+                        const dailyPrints = lastCounters.igenPrints !== null ? igenPrints - lastCounters.igenPrints : 0;
+                        const dailyMax = lastCounters.igenMaxFormat !== null ? igenMaxFormat - lastCounters.igenMaxFormat : 0;
+                        row.igenDaily = dailyPrints + dailyMax;
+                        lastCounters.igenPrints = igenPrints;
+                        lastCounters.igenMaxFormat = igenMaxFormat;
+                    } else if (lastCounters.igenPrints !== null) {
+                        row.igenDaily = -(lastCounters.igenPrints + lastCounters.igenMaxFormat);
+                    }
+
+                    if (!isNaN(iridesseTotal) && iridesseTotal > 0) { hasData = true; row.iridesseDaily = lastCounters.iridesseTotal !== null ? iridesseTotal - lastCounters.iridesseTotal : 0; lastCounters.iridesseTotal = iridesseTotal; } 
+                    else if (lastCounters.iridesseTotal !== null) { row.iridesseDaily = -lastCounters.iridesseTotal; }
+
+                    if (!isNaN(konicaTotal) && konicaTotal > 0) { hasData = true; row.konicaDaily = lastCounters.konicaTotal !== null ? (konicaTotal - lastCounters.konicaTotal) / 2 : 0; lastCounters.konicaTotal = konicaTotal; }
+                    else if (lastCounters.konicaTotal !== null) { row.konicaDaily = -lastCounters.konicaTotal / 2; }
+
+                    if (!isNaN(ricoh9200Color) && ricoh9200Color > 0) { hasData = true; row.ricoh9200Daily = lastCounters.ricoh9200Color !== null ? ricoh9200Color - lastCounters.ricoh9200Color : 0; lastCounters.ricoh9200Color = ricoh9200Color; }
+                    else if (lastCounters.ricoh9200Color !== null) { row.ricoh9200Daily = -lastCounters.ricoh9200Color; }
+
+                    if (!isNaN(ricoh9500Color) && ricoh9500Color > 0) { hasData = true; row.ricoh9500Daily = lastCounters.ricoh9500Color !== null ? ricoh9500Color - lastCounters.ricoh9500Color : 0; lastCounters.ricoh9500Color = ricoh9500Color; }
+                    else if (lastCounters.ricoh9500Color !== null) { row.ricoh9500Daily = -lastCounters.ricoh9500Color; }
+                    
+                    const igenDaily = parseFloat(row.igenDaily) || 0;
+                    const iridesseDaily = parseFloat(row.iridesseDaily) || 0;
+                    const konicaDaily = parseFloat(row.konicaDaily) || 0;
+                    const ricoh9200Daily = parseFloat(row.ricoh9200Daily) || 0;
+                    const ricoh9500Daily = parseFloat(row.ricoh9500Daily) || 0;
+                    
+                    row.totalDaily = igenDaily + iridesseDaily + konicaDaily + ricoh9200Daily + ricoh9500Daily;
+                    
+                    if (!hasData && row.totalDaily === 0) {
+                        row.totalDaily = '';
+                    }
+
+                    row.hasData = hasData;
+                });
+
+                let tableHTML = '';
+                sortedData.forEach(row => {
+                    const dateInfo = formatDate(row.date);
+                    if (dateInfo.main === 'Invalid Date') return;
+                    
+                    const igenDailyClass = row.igenDaily < 0 ? 'text-negative' : '';
+                    const iridesseDailyClass = row.iridesseDaily < 0 ? 'text-negative' : '';
+                    const konicaDailyClass = row.konicaDaily < 0 ? 'text-negative' : '';
+                    const ricoh9200DailyClass = row.ricoh9200Daily < 0 ? 'text-negative' : '';
+                    const ricoh9500DailyClass = row.ricoh9500Daily < 0 ? 'text-negative' : '';
+                    const totalDailyClass = row.totalDaily < 0 ? 'text-negative' : '';
+
+                    tableHTML += `
+                        <tr data-id="${row.id}">
+                            <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
+                            <td>${createEditableCell(row.igenPrints, row.id, 'igenPrints', 'obvodny')}</td>
+                            <td>${createEditableCell(row.igenMaxFormat, row.id, 'igenMaxFormat', 'obvodny')}</td>
+                            <td class="vertical-divider ${igenDailyClass}">${formatNumber(row.igenDaily)}</td>
+                            <td>${createEditableCell(row.iridesseTotal, row.id, 'iridesseTotal', 'obvodny')}</td>
+                            <td class="vertical-divider ${iridesseDailyClass}">${formatNumber(row.iridesseDaily)}</td>
+                            <td>${createEditableCell(row.konicaTotal, row.id, 'konicaTotal', 'obvodny')}</td>
+                            <td class="vertical-divider ${konicaDailyClass}">${formatNumber(row.konicaDaily)}</td>
+                            <td>${createEditableCell(row.ricoh9200Color, row.id, 'ricoh9200Color', 'obvodny')}</td>
+                            <td class="vertical-divider ${ricoh9200DailyClass}">${formatNumber(row.ricoh9200Daily)}</td>
+                            <td>${createEditableCell(row.ricoh9500Color, row.id, 'ricoh9500Color', 'obvodny')}</td>
+                            <td class="vertical-divider ${ricoh9500DailyClass}">${formatNumber(row.ricoh9500Daily)}</td>
+                            <td class="vertical-divider ${totalDailyClass}">${formatNumber(row.totalDaily)}</td>
+                            <td>${createEditableCell(row.notes, row.id, 'notes', 'obvodny')}</td>
+                            <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'obvodny')}</td>
+                        </tr>
+                    `;
+                });
+                obvodnyTableBody.innerHTML = tableHTML;
+                
+                 const lastRow = obvodnyTableBody.querySelector('tr:last-child');
+                if (lastRow) {
+                     setTimeout(() => lastRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                }
+            }
+
+            function renderAnanasTable() {
+                 let displayData = [...allAnanasData];
+                
+                const today = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+
+                const dateToId = (date) => date.toISOString().slice(0, 10);
+                const todayId = dateToId(today);
+                const tomorrowId = dateToId(tomorrow);
+
+                const existingIds = new Set(displayData.map(row => row.id));
+
+                if (!existingIds.has(todayId)) {
+                    displayData.push({ id: todayId, date: todayId });
+                }
+                if (!existingIds.has(tomorrowId)) {
+                    displayData.push({ id: tomorrowId, date: tomorrowId });
+                }
+                
+                const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+                let lastCounter = { ricoh9200Color: null };
+                
+                sortedData.forEach(row => {
+                    const ricoh9200Color = parseInt(row.ricoh9200Color, 10);
+                    let hasData = false;
+                    
+                    if (!isNaN(ricoh9200Color) && ricoh9200Color > 0) {
+                        hasData = true;
+                        row.daily = lastCounter.ricoh9200Color !== null ? ricoh9200Color - lastCounter.ricoh9200Color : 0;
+                        lastCounter.ricoh9200Color = ricoh9200Color;
+                    } else if (lastCounter.ricoh9200Color !== null) {
+                        row.daily = -lastCounter.ricoh9200Color;
+                    }
+                    
+                    row.hasData = hasData;
+                });
+
+                let tableHTML = '';
+                sortedData.forEach(row => {
+                    const dateInfo = formatDate(row.date);
+                    if (dateInfo.main === 'Invalid Date') return;
+                    
+                    const dailyClass = row.daily < 0 ? 'text-negative' : '';
+                    
+                    tableHTML += `
+                        <tr data-id="${row.id}">
+                            <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
+                            <td>${createEditableCell(row.ricoh9200Color, row.id, 'ricoh9200Color', 'ananas')}</td>
+                            <td class="vertical-divider ${dailyClass}">${formatNumber(row.daily)}</td>
+                            <td>${createEditableCell(row.notes, row.id, 'notes', 'ananas')}</td>
+                            <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'ananas')}</td>
+                        </tr>
+                    `;
+                });
+                ananasTableBody.innerHTML = tableHTML;
+            }
+
+            function renderGofraTable() {
+                let displayData = [...allGofraData];
+                
+                const today = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+
+                const dateToId = (date) => date.toISOString().slice(0, 10);
+                const todayId = dateToId(today);
+                const tomorrowId = dateToId(tomorrow);
+
+                const existingIds = new Set(displayData.map(row => row.id));
+
+                if (!existingIds.has(todayId)) {
+                    displayData.push({ id: todayId, date: todayId });
+                }
+                if (!existingIds.has(tomorrowId)) {
+                    displayData.push({ id: tomorrowId, date: tomorrowId });
+                }
+                
+                const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+                let lastCounterValue = null;
+                
+                sortedData.forEach(row => {
+                    const counterValue = parseInt(row.counter, 10);
+                    let hasData = false;
+                    
+                    if (!isNaN(counterValue) && counterValue > 0) {
+                        hasData = true;
+                        row.daily = lastCounterValue !== null ? counterValue - lastCounterValue : 0;
+                        lastCounterValue = counterValue;
+                    } else if (lastCounterValue !== null) {
+                        row.daily = -lastCounterValue;
+                    }
+                    
+                    row.hasData = hasData;
+                });
+
+                let tableHTML = '';
+                sortedData.forEach(row => {
+                    const dateInfo = formatDate(row.date);
+                    if (dateInfo.main === 'Invalid Date') return;
+                    
+                    const dailyClass = row.daily < 0 ? 'text-negative' : '';
+                    
+                    tableHTML += `
+                        <tr data-id="${row.id}">
+                            <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
+                            <td>${createEditableCell(row.counter, row.id, 'counter', 'gofra')}</td>
+                            <td class="vertical-divider ${dailyClass}">${formatNumber(row.daily)}</td>
+                            <td>${createEditableCell(row.notes, row.id, 'notes', 'gofra')}</td>
+                            <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'gofra')}</td>
+                        </tr>
+                    `;
+                });
+                gofraTableBody.innerHTML = tableHTML;
+            }
+
+            // --- RENDER ETIKETKA TABLE ---
+            function renderEtiketkaTable() {
+                let displayData = [...allEtiketkaData];
+                
+                const today = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+
+                const dateToId = (date) => date.toISOString().slice(0, 10);
+                const todayId = dateToId(today);
+                const tomorrowId = dateToId(tomorrow);
+
+                const existingIds = new Set(displayData.map(row => row.id));
+
+                if (!existingIds.has(todayId)) {
+                    displayData.push({ id: todayId, date: todayId });
+                }
+                if (!existingIds.has(tomorrowId)) {
+                    displayData.push({ id: tomorrowId, date: tomorrowId });
+                }
+                
+                const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+                let lastCounter = { gip: null, dms: null };
+                
+                sortedData.forEach(row => {
+                    const gipCounter = parseInt(row.gipCounter, 10);
+                    const dmsCounter = parseInt(row.dmsCounter, 10);
+                    let hasData = false;
+                    
+                    if (!isNaN(gipCounter) && gipCounter > 0) {
+                        hasData = true;
+                        row.gipDaily = lastCounter.gip !== null ? gipCounter - lastCounter.gip : 0;
+                        lastCounter.gip = gipCounter;
+                    } else if (lastCounter.gip !== null) {
+                        row.gipDaily = -lastCounter.gip;
+                    }
+
+                    if (!isNaN(dmsCounter) && dmsCounter > 0) {
+                        hasData = true; // hasData is true if either machine has data.
+                        row.dmsDaily = lastCounter.dms !== null ? dmsCounter - lastCounter.dms : 0;
+                        lastCounter.dms = dmsCounter;
+                    } else if (lastCounter.dms !== null) {
+                        row.dmsDaily = -lastCounter.dms;
+                    }
+                    
+                    row.hasData = hasData;
+                });
+
+                let tableHTML = '';
+                sortedData.forEach(row => {
+                    const dateInfo = formatDate(row.date);
+                    if (dateInfo.main === 'Invalid Date') return;
+                    
+                    const gipDailyClass = row.gipDaily < 0 ? 'text-negative' : '';
+                    const dmsDailyClass = row.dmsDaily < 0 ? 'text-negative' : '';
+                    
+                    tableHTML += `
+                        <tr data-id="${row.id}">
+                            <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
+                            <td>${createEditableCell(row.gipCounter, row.id, 'gipCounter', 'etiketka')}</td>
+                            <td class="vertical-divider ${gipDailyClass}">${formatNumber(row.gipDaily)}</td>
+                            <td>${createEditableCell(row.dmsCounter, row.id, 'dmsCounter', 'etiketka')}</td>
+                            <td class="vertical-divider ${dmsDailyClass}">${formatNumber(row.dmsDaily)}</td>
+                            <td>${createEditableCell(row.notes, row.id, 'notes', 'etiketka')}</td>
+                            <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'etiketka')}</td>
+                        </tr>
+                    `;
+                });
+                etiketkaTableBody.innerHTML = tableHTML;
+            }
+            
+            async function logAction(table, dateId, action, details) {
+                if (!auth.currentUser) return;
+                try {
+                    await addDoc(historyCollectionRef, {
+                        userEmail: auth.currentUser.email,
+                        timestamp: serverTimestamp(),
+                        table,
+                        dateId,
+                        action,
+                        details
+                    });
+                } catch (error) {
+                    console.error("Error logging action:", error);
+                }
+            }
+
+            // --- FORM, EDIT, DELETE HANDLING ---
+            function setDefaultDate() {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                const dateString = now.toISOString().slice(0,10);
+                document.getElementById('new-date').value = dateString;
+                document.getElementById('new-ananas-date').value = dateString;
+                document.getElementById('new-gofra-date').value = dateString;
+                document.getElementById('new-etiketka-date').value = dateString;
+            }
+
+            addObvodnyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const getVal = (id) => document.getElementById(id).value;
+                const getNum = (id) => document.getElementById(id).value ? parseInt(document.getElementById(id).value.replace(/\s/g, ''), 10) : null;
+                const dateId = getVal('new-date');
+
+                const newDocData = {
+                    date: dateId,
+                    igenPrints: getNum('new-igen-all-prints'),
+                    igenMaxFormat: getNum('new-igen-max-format'),
+                    iridesseTotal: getNum('new-iridesse-total'),
+                    konicaTotal: getNum('new-konica-total'),
+                    ricoh9200Color: getNum('new-ricoh9200-color'),
+                    ricoh9500Color: getNum('new-ricoh9500-color'),
+                    notes: getVal('new-notes')
+                };
+                
+                const docRef = doc(obvodnyCollectionRef, dateId);
+                setDoc(docRef, newDocData)
+                    .then(() => {
+                        logAction('obvodny', dateId, 'Добавлена/обновлена запись', `Данные за ${dateId}`);
+                        addObvodnyForm.reset();
+                        setDefaultDate();
+                    })
+                    .catch(error => console.error("Error adding/updating document: ", error));
+            });
+
+            addAnanasForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const getVal = (id) => document.getElementById(id).value;
+                const getNum = (id) => document.getElementById(id).value ? parseInt(document.getElementById(id).value.replace(/\s/g, ''), 10) : null;
+                const dateId = getVal('new-ananas-date');
+
+                const newDocData = {
+                    date: dateId,
+                    ricoh9200Color: getNum('new-ananas-ricoh9200-color'),
+                    notes: getVal('new-ananas-notes')
+                };
+                
+                const docRef = doc(ananasCollectionRef, dateId);
+                setDoc(docRef, newDocData)
+                    .then(() => {
+                        logAction('ananas', dateId, 'Добавлена/обновлена запись', `Данные за ${dateId}`);
+                        addAnanasForm.reset();
+                        setDefaultDate();
+                    })
+                    .catch(error => console.error("Error adding/updating ananas document: ", error));
+            });
+            
+            addGofraForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const getVal = (id) => document.getElementById(id).value;
+                const getNum = (id) => document.getElementById(id).value ? parseInt(document.getElementById(id).value.replace(/\s/g, ''), 10) : null;
+                const dateId = getVal('new-gofra-date');
+
+                const newDocData = {
+                    date: dateId,
+                    counter: getNum('new-gofra-counter'),
+                    notes: getVal('new-gofra-notes')
+                };
+                
+                const docRef = doc(gofraCollectionRef, dateId);
+                setDoc(docRef, newDocData)
+                    .then(() => {
+                         logAction('gofra', dateId, 'Добавлена/обновлена запись', `Данные за ${dateId}`);
+                        addGofraForm.reset();
+                        setDefaultDate();
+                    })
+                    .catch(error => console.error("Error adding/updating gofra document: ", error));
+            });
+
+            addEtiketkaForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const getVal = (id) => document.getElementById(id).value;
+                const getNum = (id) => document.getElementById(id).value ? parseInt(document.getElementById(id).value.replace(/\s/g, ''), 10) : null;
+                const dateId = getVal('new-etiketka-date');
+
+                const newDocData = {
+                    date: dateId,
+                    gipCounter: getNum('new-etiketka-gip-counter'),
+                    dmsCounter: getNum('new-etiketka-dms-counter'),
+                    notes: getVal('new-etiketka-notes')
+                };
+                
+                const docRef = doc(etiketkaCollectionRef, dateId);
+                setDoc(docRef, newDocData)
+                    .then(() => {
+                        logAction('etiketka', dateId, 'Добавлена/обновлена запись', `Данные за ${dateId}`);
+                        addEtiketkaForm.reset();
+                        setDefaultDate();
+                    })
+                    .catch(error => console.error("Error adding/updating etiketka document: ", error));
+            });
+
+            tablesContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.edit-cell-btn, .delete-btn');
+                if (!button) return;
+
+                const tableType = button.dataset.table;
+                const date = button.dataset.date;
+
+                if (button.classList.contains('edit-cell-btn')) {
+                    handleCellEdit(button);
+                } else if (button.classList.contains('delete-btn')) {
+                    handleDelete(date, tableType);
+                }
+            });
+            
+            const collectionRefs = {
+                obvodny: obvodnyCollectionRef,
+                ananas: ananasCollectionRef,
+                gofra: gofraCollectionRef,
+                etiketka: etiketkaCollectionRef
+            };
+
+            const dataSources = {
+                obvodny: () => allObvodnyData,
+                ananas: () => allAnanasData,
+                gofra: () => allGofraData,
+                etiketka: () => allEtiketkaData
+            };
+
+            const renderFunctions = {
+                obvodny: renderObvodnyTable,
+                ananas: renderAnanasTable,
+                gofra: renderGofraTable,
+                etiketka: renderEtiketkaTable
+            };
+
+            function handleCellEdit(button) {
+                if (currentEditingCell) saveCellEdit();
+
+                const tableType = button.dataset.table;
+                const wrapper = button.parentElement;
+                const date = button.dataset.date;
+                const column = button.dataset.column;
+                
+                const dataSource = dataSources[tableType]();
+                const originalValue = dataSource.find(r => r.id === date)?.[column] || '';
+
+                wrapper.innerHTML = `<input type="text" class="cell-input" value="${originalValue}">`;
+                const input = wrapper.querySelector('input');
+                input.focus();
+                input.select();
+                
+                currentEditingCell = { input, date, column, table: tableType, originalValue };
+                input.addEventListener('blur', saveCellEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') saveCellEdit();
+                    if (e.key === 'Escape') cancelCellEdit();
+                });
+            }
+
+            function saveCellEdit() {
+                if (!currentEditingCell) return;
+                const { input, date, column, table, originalValue } = currentEditingCell;
+                let newValue = input.value;
+                
+                const isNumeric = !["notes"].includes(column);
+                const processedNewValue = isNumeric ? (newValue ? parseInt(newValue.replace(/\s/g, ''), 10) : null) : newValue;
+
+                if (originalValue == processedNewValue) { // use == for loose comparison of null/undefined/""/0
+                    cancelCellEdit(); // No change, just cancel
+                    return;
+                }
+
+                const docRef = doc(collectionRefs[table], date);
+
+                const dataToUpdate = {
+                    [column]: processedNewValue,
+                    date: date
+                };
+
+                setDoc(docRef, dataToUpdate, { merge: true }).then(() => {
+                    const details = `Поле '${column}' для даты ${date} изменено с '${originalValue || 'пусто'}' на '${newValue || 'пусто'}'`;
+                    logAction(table, date, 'Изменение данных', details);
+                }).catch(error => console.error(`Error updating ${table} cell:`, error));
+                
+                currentEditingCell = null;
+            }
+
+            function cancelCellEdit() {
+                if (!currentEditingCell) return;
+                const tableToRender = currentEditingCell.table;
+                currentEditingCell = null;
+                renderFunctions[tableToRender]();
+            }
+
+            function handleDelete(dateId, tableType) {
+                const readableDate = new Date(dateId + 'T00:00:00').toLocaleDateString('ru-RU');
+                showConfirmModal(`Вы уверены, что хотите удалить запись за ${readableDate}?`, () => {
+                    const docRef = doc(collectionRefs[tableType], dateId);
+                    if(docRef) {
+                        deleteDoc(docRef).then(() => {
+                             logAction(tableType, dateId, 'Удалена запись', `Запись за ${dateId} удалена`);
+                        })
+                        .catch(error => console.error("Error deleting document:", error));
+                    }
+                });
+            }
+            
+            // --- INITIAL DATA SEEDING (RUNS ONCE) ---
+            async function seedInitialData() {
+                 // Seed Obvodny Data
+                const obvodnySnapshot = await getDocs(query(obvodnyCollectionRef));
+                if (obvodnySnapshot.empty) {
+                    console.log("Obvodny database is empty. Seeding initial data...");
+                    const dataToSeed = `Дата,iGen Счетчик All prints,iGen Макс формат,Iridesse Счетчик Total,Konica 12000 Счетчик,Ricoh 9200 Счетчик,Ricoh 9500 Счетчик,Примечания
+01.09.2025,28581868,5599045,7789366,9455136,11409900,6379889,
+02.09.2025,28585952,5599540,7789366,9455152,11419037,6384354,
+03.09.2025,28586977,5599612,7789366,9455152,11422889,6394200,
+04.09.2025,28586977,5599612,7789778,9456315,11447227,6417756,
+05.09.2025,28588475,5600155,7789822,9456345,11472308,6439944,
+06.09.2025,28588475,5600155,7789822,9456345,11472308,6439944,"для контроля счетов Рико 9200 - счет за июнь был с последними значениями счетчика 10,825,811 цв и 62,713 чб"
+07.09.2025,28588475,5600155,7789822,9456345,11472308,6439944,"для контроля счетов Рико 9500 - счет за июнь был с последними значениями счетчика 5,754,710 цв и 72,570 чб"
+08.09.2025,28588815,5600155,7790008,9456505,11485952,6454512,
+09.09.2025,28588937,5600155,7790093,9459477,11502220,6472995,
+10.09.2025,28589206,5600191,7790093,9459929,11520865,6492819,
+11.09.2025,28589248,5600191,7790093,9461192,11541480,6507353,
+12.09.2025,28589957,5600191,7790217,9468699,11565382,6525194,
+13.09.2025,28589957,5600191,7790217,9468905,11587468,6539023,
+14.09.2025,28589957,5600191,7790217,9468935,11589770,6541759,
+15.09.2025,28589957,5600191,7790217,9468965,11597937,6547788,
+16.09.2025,28590786,5600566,7790217,9476638,11615432,6566112,
+17.09.2025,28591608,5600566,7790656,9476933,11627354,6583249,
+                    `.trim().split('\n').slice(1).map(line => {
+                        const parts = line.split(',');
+                        return {
+                            date: parts[0].split('.').reverse().join('-'),
+                            igenPrints: parseInt(parts[1], 10) || null,
+                            igenMaxFormat: parseInt(parts[2], 10) || null,
+                            iridesseTotal: parseInt(parts[3], 10) || null,
+                            konicaTotal: parseInt(parts[4], 10) || null,
+                            ricoh9200Color: parseInt(parts[5], 10) || null,
+                            ricoh9500Color: parseInt(parts[6], 10) || null,
+                            notes: parts[7] ? parts[7].replace(/"/g, '') : ''
+                        }
+                    });
+                    const batch = writeBatch(db);
+                    dataToSeed.forEach(row => {
+                        const docRef = doc(obvodnyCollectionRef, row.date);
+                        batch.set(docRef, row);
+                    });
+                    await batch.commit();
+                }
+
+                // Seed Ananas Data
+                const ananasSnapshot = await getDocs(query(ananasCollectionRef));
+                if (ananasSnapshot.empty) {
+                    console.log("Ananas database is empty. Seeding initial data...");
+                     const ananasDataToSeed = [
+                        { date: '2025-09-01', value: 5210722 }, { date: '2025-09-02', value: 5212771 },
+                        { date: '2025-09-03', value: 5217988 }, { date: '2025-09-04', value: 5229282 },
+                        { date: '2025-09-05', value: 5233347 }, { date: '2025-09-08', value: 5238749 },
+                        { date: '2025-09-09', value: 5246118 }, { date: '2025-09-10', value: 5250778 },
+                        { date: '2025-09-11', value: 5255050 }, { date: '2025-09-12', value: 5262548 },
+                        { date: '2025-09-15', value: 5266258 }, { date: '2025-09-16', value: 5271842 },
+                        { date: '2025-09-17', value: 5280451 }, { date: '2025-09-18', value: 5284813 }
+                    ];
+
+                    const ananasBatch = writeBatch(db);
+                    ananasDataToSeed.forEach(item => {
+                        const docRef = doc(ananasCollectionRef, item.date);
+                        const docData = {
+                            date: item.date,
+                            ricoh9200Color: item.value,
+                            notes: ''
+                        };
+                        ananasBatch.set(docRef, docData);
+                    });
+                    await ananasBatch.commit();
+                }
+                
+                // Seed Gofra Data
+                const gofraSnapshot = await getDocs(query(gofraCollectionRef));
+                if (gofraSnapshot.empty) {
+                     console.log("Gofra database is empty. No initial data to seed.");
+                     allGofraData = [];
+                }
+
+                // Seed Etiketka Data
+                const etiketkaDocRef = doc(etiketkaCollectionRef, '2025-06-30');
+                const etiketkaDocSnap = await getDoc(etiketkaDocRef);
+                const expectedNote = "в GIP залито в кажый цвет до полного бака(5л), в DMS залито до горла (≈ 3 литра)";
+
+                // Re-seed if the data is missing, incomplete, or the notes are outdated.
+                if (!etiketkaDocSnap.exists() || !etiketkaDocSnap.data().dmsCounter || etiketkaDocSnap.data().notes !== expectedNote) {
+                    console.log("Etiketka database is missing or notes are outdated. Seeding initial data...");
+                    
+                    const etiketkaSeedData = [
+                        { date: '2025-06-30', gip: 12571, dms: 26372, notes: "в GIP залито в кажый цвет до полного бака(5л), в DMS залито до горла (≈ 3 литра)" }, 
+                        { date: '2025-07-01', gip: 12588, dms: 26433, notes: "" },
+                        { date: '2025-07-02', gip: 12603, dms: 26445, notes: "" }, 
+                        { date: '2025-07-03', gip: 12609, dms: 26734, notes: "" },
+                        { date: '2025-07-04', gip: 12635, dms: 26832, notes: "" }, 
+                        { date: '2025-07-05', gip: 12639, dms: 26832, notes: "" },
+                        { date: '2025-07-06', gip: 12649, dms: 26840, notes: "" }, 
+                        { date: '2025-07-07', gip: 12664, dms: 26845, notes: "" },
+                        { date: '2025-07-08', gip: 12747, dms: 26991, notes: "" }, 
+                        { date: '2025-07-09', gip: 12756, dms: 26994, notes: "" },
+                        { date: '2025-07-10', gip: 12806, dms: 27001, notes: "" }, 
+                        { date: '2025-07-11', gip: 12875, dms: 27019, notes: "в GIP залит белый цвет до полного бака (5л), затрачено 3 литра чернил, датчик уровня чернил сработал на уровне 2-х литров." },
+                        { date: '2025-07-12', gip: 12988, dms: 27033, notes: "" }, 
+                        { date: '2025-07-13', gip: 13001, dms: 27033, notes: "" },
+                        { date: '2025-07-14', gip: 13015, dms: 27038, notes: "" }, 
+                        { date: '2025-07-15', gip: 13122, dms: 27175, notes: "" },
+                        { date: '2025-07-16', gip: 13185, dms: 27182, notes: "" }, 
+                        { date: '2025-07-17', gip: 13206, dms: 27188, notes: "Сработал датчик уровня отходов на GIP, слил примерно 4.5л." },
+                        { date: '2025-07-18', gip: 13245, dms: 27189, notes: "" }, 
+                        { date: '2025-07-19', gip: 13406, dms: 27282, notes: "" },
+                        { date: '2025-07-20', gip: 13406, dms: 27282, notes: "" }, 
+                        { date: '2025-07-21', gip: 13432, dms: 27336, notes: "" },
+                        { date: '2025-07-22', gip: 13448, dms: 27361, notes: "" }, 
+                        { date: '2025-07-23', gip: 13455, dms: 27367, notes: "" },
+                        { date: '2025-07-24', gip: 13455, dms: 27368, notes: "" }, 
+                        { date: '2025-07-25', gip: 13510, dms: 27401, notes: "" },
+                        { date: '2025-07-26', gip: 13511, dms: 27407, notes: "" }, 
+                        { date: '2025-07-27', gip: 13511, dms: 27407, notes: "" },
+                        { date: '2025-07-28', gip: 13511, dms: 27407, notes: "в GIP залит белый цвет до полного бака (5л), затрачено 3 литра чернил, датчик уровня чернил сработал на уровне 2-х литров." }, 
+                        { date: '2025-07-29', gip: 13571, dms: 27464, notes: "" },
+                        { date: '2025-07-30', gip: 13660, dms: 27468, notes: "" }, 
+                        { date: '2025-07-31', gip: 13786, dms: 27586, notes: "Сработал датчик уровня отходов на GIP, слил примерно 4.5л. " },
+                        { date: '2025-08-01', gip: 13792, dms: 27597, notes: "" }, 
+                        { date: '2025-08-02', gip: 13792, dms: 27597, notes: "" },
+                        { date: '2025-08-03', gip: 13792, dms: 27597, notes: "" }, 
+                        { date: '2025-08-04', gip: 13872, dms: 27760, notes: "" },
+                        { date: '2025-08-05', gip: 13885, dms: 27764, notes: "Сработал датчик уровня лака на DMS, залила 2,5 литра лака до горла." }, 
+                        { date: '2025-08-06', gip: 13995, dms: 27775, notes: "В GIP залито 4л Magenta, сработал датчик уровня краски" },
+                        { date: '2025-08-07', gip: 14057, dms: 27807, notes: "" }, 
+                        { date: '2025-08-08', gip: 14066, dms: 27824, notes: "" },
+                        { date: '2025-08-09', gip: 14066, dms: 27824, notes: "" }, 
+                        { date: '2025-08-10', gip: 14066, dms: 27824, notes: "" },
+                        { date: '2025-08-11', gip: 14121, dms: 27857, notes: "В GIP залито 3 л White, сработал датчик уровня краски" }, 
+                        { date: '2025-08-12', gip: 14250, dms: 27928, notes: "" },
+                        { date: '2025-08-13', gip: 14328, dms: 27931, notes: "" }, 
+                        { date: '2025-08-14', gip: 14357, dms: 27934, notes: "Сработал датчик уровня отходов на GIP, слил примерно 4.5л. " },
+                        { date: '2025-08-15', gip: 14393, dms: 27937, notes: "" }, 
+                        { date: '2025-08-16', gip: 14393, dms: 27937, notes: "" },
+                        { date: '2025-08-17', gip: 14406, dms: 27940, notes: "" }, 
+                        { date: '2025-08-18', gip: 14455, dms: 27949, notes: "" },
+                        { date: '2025-08-19', gip: 14460, dms: 27952, notes: "" }, 
+                        { date: '2025-08-20', gip: 14462, dms: 27957, notes: "" },
+                        { date: '2025-08-21', gip: 14492, dms: 27960, notes: "" }, 
+                        { date: '2025-08-22', gip: 14500, dms: 27962, notes: "Сработал датчик уровня белого, залила 3 литра" },
+                        { date: '2025-08-23', gip: 14518, dms: 27962, notes: "" }, 
+                        { date: '2025-08-24', gip: 14518, dms: 28034, notes: "" },
+                        { date: '2025-08-25', gip: 14602, dms: 28034, notes: "" }, 
+                        { date: '2025-08-26', gip: 14615, dms: 28035, notes: "" },
+                        { date: '2025-08-27', gip: 14620, dms: 28038, notes: "" }, 
+                        { date: '2025-08-28', gip: 14699, dms: 28041, notes: "" },
+                        { date: '2025-08-29', gip: 14708, dms: 28045, notes: "" }, 
+                        { date: '2025-08-30', gip: 14735, dms: 28050, notes: "" },
+                        { date: '2025-08-31', gip: 14749, dms: 28054, notes: "" }, 
+                        { date: '2025-09-01', gip: 14750, dms: 28055, notes: "" },
+                        { date: '2025-09-02', gip: 14756, dms: 28058, notes: "" }, 
+                        { date: '2025-09-03', gip: 14772, dms: 28061, notes: "" },
+                        { date: '2025-09-04', gip: 14801, dms: 28061, notes: "" }, 
+                        { date: '2025-09-05', gip: 14823, dms: 28063, notes: "Сработал датчик уровня белого, залил 3 литра" },
+                        { date: '2025-09-06', gip: 14837, dms: 28092, notes: "" }, 
+                        { date: '2025-09-07', gip: 14837, dms: 28093, notes: "" },
+                        { date: '2025-09-08', gip: 14841, dms: 28096, notes: "" }, 
+                        { date: '2025-09-09', gip: 14855, dms: 28100, notes: "" },
+                        { date: '2025-09-10', gip: 15149, dms: 28106, notes: "" }, 
+                        { date: '2025-09-11', gip: 15242, dms: 28109, notes: "" },
+                        { date: '2025-09-12', gip: 15263, dms: 28199, notes: "" }, 
+                        { date: '2025-09-13', gip: 15270, dms: 28201, notes: "" },
+                        { date: '2025-09-14', gip: 15278, dms: 28203, notes: "" }, 
+                        { date: '2025-09-15', gip: 15280, dms: 28203, notes: "" },
+                        { date: '2025-09-16', gip: 15283, dms: 28206, notes: "Сработал датчик уровня белого. Залила 3 литра белого и ~3 литра циана, уровень краски был примерно на 2-х литрах." }, 
+                        { date: '2025-09-17', gip: 15308, dms: 28209, notes: "" },
+                        { date: '2025-09-18', gip: 15311, dms: 28213, notes: "" }
+                    ];
+
+                    const etiketkaBatch = writeBatch(db);
+
+                    etiketkaSeedData.forEach(item => {
+                        const docRef = doc(etiketkaCollectionRef, item.date);
+                        const docData = {
+                            date: item.date,
+                            gipCounter: item.gip,
+                            dmsCounter: item.dms,
+                            notes: item.notes
+                        };
+                        etiketkaBatch.set(docRef, docData);
+                    });
+                    
+                    await etiketkaBatch.commit();
+                }
+            }
+            
+            // --- INITIAL SETUP ---
+            setDefaultDate();
+            updateAuthView();
+        });
+    </script>
+
+</body>
+</html>
+
+
