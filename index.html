@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -22,14 +22,14 @@
         }
 
         html.dark {
-            --bg-primary: #3f3f46;     /* zinc-700 */
-            --bg-secondary: #27272a;     /* zinc-800 */
-            --text-primary: #f4f4f5;     /* zinc-100 */
-            --text-secondary: #a1a1aa;     /* zinc-400 */
-            --accent-color: #facc15;     /* yellow-400 */
-            --accent-text: #18181b;     /* zinc-900 */
-            --border-color: #52525b;     /* zinc-600 */
-            --card-bg: #3f3f46;         /* zinc-700 */
+            --bg-primary: #3f3f46;      /* zinc-700 */
+            --bg-secondary: #27272a;      /* zinc-800 */
+            --text-primary: #f4f4f5;      /* zinc-100 */
+            --text-secondary: #a1a1aa;      /* zinc-400 */
+            --accent-color: #facc15;      /* yellow-400 */
+            --accent-text: #18181b;      /* zinc-900 */
+            --border-color: #52525b;      /* zinc-600 */
+            --card-bg: #3f3f46;          /* zinc-700 */
             --shadow-color: rgba(0, 0, 0, 0.4);
             --header-bg: #3f3f46;
             --input-bg: #27272a;
@@ -314,17 +314,17 @@
                          <div id="user-email" class="font-semibold text-primary"></div>
                          <button id="logout-btn" class="text-red-500 hover:underline text-xs">Выйти</button>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button id="history-btn" class="btn-submit px-4 py-1.5 rounded-lg text-sm font-semibold">История</button>
-                        <label for="theme-toggle-input" title="Переключить тему" class="relative w-16 h-8 flex items-center bg-sky-200 dark:bg-zinc-700 rounded-full cursor-pointer p-1 transition-colors duration-300">
-                            <input type="checkbox" id="theme-toggle-input" class="sr-only peer">
-                            <span class="w-6 h-6 bg-yellow-400 dark:bg-slate-300 rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center peer-checked:translate-x-8">
-                                <svg class="h-4 w-4 text-white block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-15.66l-.707.707M4.04 19.96l-.707.707M21 12h-1M4 12H3m16.96-7.96l-.707-.707M4.04 4.04l-.707-.707M12 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
-                                <svg class="h-4 w-4 text-zinc-800 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                            </span>
-                        </label>
-                    </div>
-                </div>
+                     <div class="flex items-center gap-4">
+                         <button id="history-btn" class="btn-submit px-4 py-1.5 rounded-lg text-sm font-semibold">История</button>
+                         <label for="theme-toggle-input" title="Переключить тему" class="relative w-16 h-8 flex items-center bg-sky-200 dark:bg-zinc-700 rounded-full cursor-pointer p-1 transition-colors duration-300">
+                             <input type="checkbox" id="theme-toggle-input" class="sr-only peer">
+                             <span class="w-6 h-6 bg-yellow-400 dark:bg-slate-300 rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center peer-checked:translate-x-8">
+                                 <svg class="h-4 w-4 text-white block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-15.66l-.707.707M4.04 19.96l-.707.707M21 12h-1M4 12H3m16.96-7.96l-.707-.707M4.04 4.04l-.707-.707M12 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                                 <svg class="h-4 w-4 text-zinc-800 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                             </span>
+                         </label>
+                     </div>
+                 </div>
                 <h1 class="text-3xl sm:text-4xl font-bold">Счетчик цифры</h1>
             </div>
         </header>
@@ -695,6 +695,29 @@
 
             let isLoginMode = true;
 
+            // --- SCROLL LOGIC ---
+            function scrollToLastRow(tableContainer) {
+                if (!tableContainer) return;
+                const lastRow = tableContainer.querySelector('tbody tr:last-child');
+                if (lastRow) {
+                    // Using setTimeout to ensure the DOM is ready before scrolling.
+                    setTimeout(() => {
+                        lastRow.scrollIntoView({ behavior: 'auto', block: 'end' });
+                    }, 0);
+                }
+            }
+
+            // Scroll to bottom when user returns to the browser tab
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    const activeTableContainer = document.querySelector('.table-container:not(.hidden)');
+                    if (activeTableContainer) {
+                        scrollToLastRow(activeTableContainer);
+                    }
+                }
+            });
+
+
             // --- AUTHENTICATION ---
             function updateAuthView() {
                 authMessage.textContent = '';
@@ -817,7 +840,10 @@
                 const tableToShow = document.getElementById(`table-${selectedTable}`);
                 const formToShow = document.getElementById(`add-${selectedTable}-form`);
 
-                if (tableToShow) tableToShow.classList.remove('hidden');
+                if (tableToShow) {
+                    tableToShow.classList.remove('hidden');
+                    scrollToLastRow(tableToShow); // Scroll on tab switch
+                }
                 
                 if (formToShow) {
                     formToShow.classList.remove('hidden');
@@ -949,10 +975,10 @@
             function createActionsCell(date, hasData, tableType) {
                 if (!hasData) return '';
                 return `<div class="flex items-center justify-center gap-2">
-                            <button data-table="${tableType}" data-date="${date}" class="delete-btn p-1 text-secondary hover:text-red-500 transition" title="Удалить">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                        </div>`;
+                             <button data-table="${tableType}" data-date="${date}" class="delete-btn p-1 text-secondary hover:text-red-500 transition" title="Удалить">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                             </button>
+                         </div>`;
             }
             
             const tableNamesMap = {
@@ -1097,69 +1123,70 @@
                 });
                 obvodnyTableBody.innerHTML = tableHTML;
                 
-                 const lastRow = obvodnyTableBody.querySelector('tr:last-child');
-                if (lastRow) {
-                     setTimeout(() => lastRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-                }
+                const tableContainer = obvodnyTableBody.closest('.table-container');
+                scrollToLastRow(tableContainer);
             }
 
             function renderAnanasTable() {
                  let displayData = [...allAnanasData];
                 
-                const today = new Date();
-                const tomorrow = new Date();
-                tomorrow.setDate(today.getDate() + 1);
+                 const today = new Date();
+                 const tomorrow = new Date();
+                 tomorrow.setDate(today.getDate() + 1);
 
-                const dateToId = (date) => date.toISOString().slice(0, 10);
-                const todayId = dateToId(today);
-                const tomorrowId = dateToId(tomorrow);
+                 const dateToId = (date) => date.toISOString().slice(0, 10);
+                 const todayId = dateToId(today);
+                 const tomorrowId = dateToId(tomorrow);
 
-                const existingIds = new Set(displayData.map(row => row.id));
+                 const existingIds = new Set(displayData.map(row => row.id));
 
-                if (!existingIds.has(todayId)) {
-                    displayData.push({ id: todayId, date: todayId });
-                }
-                if (!existingIds.has(tomorrowId)) {
-                    displayData.push({ id: tomorrowId, date: tomorrowId });
-                }
+                 if (!existingIds.has(todayId)) {
+                     displayData.push({ id: todayId, date: todayId });
+                 }
+                 if (!existingIds.has(tomorrowId)) {
+                     displayData.push({ id: tomorrowId, date: tomorrowId });
+                 }
                 
-                const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
+                 const sortedData = displayData.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-                let lastCounter = { ricoh9200Color: null };
+                 let lastCounter = { ricoh9200Color: null };
                 
-                sortedData.forEach(row => {
-                    const ricoh9200Color = parseInt(row.ricoh9200Color, 10);
-                    let hasData = false;
-                    
-                    if (!isNaN(ricoh9200Color) && ricoh9200Color > 0) {
-                        hasData = true;
-                        row.daily = lastCounter.ricoh9200Color !== null ? ricoh9200Color - lastCounter.ricoh9200Color : 0;
-                        lastCounter.ricoh9200Color = ricoh9200Color;
-                    } else if (lastCounter.ricoh9200Color !== null) {
-                        row.daily = -lastCounter.ricoh9200Color;
-                    }
-                    
-                    row.hasData = hasData;
-                });
+                 sortedData.forEach(row => {
+                     const ricoh9200Color = parseInt(row.ricoh9200Color, 10);
+                     let hasData = false;
+                     
+                     if (!isNaN(ricoh9200Color) && ricoh9200Color > 0) {
+                         hasData = true;
+                         row.daily = lastCounter.ricoh9200Color !== null ? ricoh9200Color - lastCounter.ricoh9200Color : 0;
+                         lastCounter.ricoh9200Color = ricoh9200Color;
+                     } else if (lastCounter.ricoh9200Color !== null) {
+                         row.daily = -lastCounter.ricoh9200Color;
+                     }
+                     
+                     row.hasData = hasData;
+                 });
 
-                let tableHTML = '';
-                sortedData.forEach(row => {
-                    const dateInfo = formatDate(row.date);
-                    if (dateInfo.main === 'Invalid Date') return;
-                    
-                    const dailyClass = row.daily < 0 ? 'text-negative' : '';
-                    
-                    tableHTML += `
-                        <tr data-id="${row.id}">
-                            <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
-                            <td>${createEditableCell(row.ricoh9200Color, row.id, 'ricoh9200Color', 'ananas')}</td>
-                            <td class="vertical-divider ${dailyClass}">${formatNumber(row.daily)}</td>
-                            <td>${createEditableCell(row.notes, row.id, 'notes', 'ananas')}</td>
-                            <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'ananas')}</td>
-                        </tr>
-                    `;
-                });
-                ananasTableBody.innerHTML = tableHTML;
+                 let tableHTML = '';
+                 sortedData.forEach(row => {
+                     const dateInfo = formatDate(row.date);
+                     if (dateInfo.main === 'Invalid Date') return;
+                     
+                     const dailyClass = row.daily < 0 ? 'text-negative' : '';
+                     
+                     tableHTML += `
+                         <tr data-id="${row.id}">
+                             <td class="date-cell"><div>${dateInfo.main}</div><div class="date-day">${dateInfo.day}</div></td>
+                             <td>${createEditableCell(row.ricoh9200Color, row.id, 'ricoh9200Color', 'ananas')}</td>
+                             <td class="vertical-divider ${dailyClass}">${formatNumber(row.daily)}</td>
+                             <td>${createEditableCell(row.notes, row.id, 'notes', 'ananas')}</td>
+                             <td class="actions-cell">${createActionsCell(row.id, row.hasData, 'ananas')}</td>
+                         </tr>
+                     `;
+                 });
+                 ananasTableBody.innerHTML = tableHTML;
+
+                 const tableContainer = ananasTableBody.closest('.table-container');
+                 scrollToLastRow(tableContainer);
             }
 
             function renderGofraTable() {
@@ -1219,6 +1246,8 @@
                     `;
                 });
                 gofraTableBody.innerHTML = tableHTML;
+                const tableContainer = gofraTableBody.closest('.table-container');
+                scrollToLastRow(tableContainer);
             }
 
             // --- RENDER ETIKETKA TABLE ---
@@ -1291,6 +1320,8 @@
                     `;
                 });
                 etiketkaTableBody.innerHTML = tableHTML;
+                const tableContainer = etiketkaTableBody.closest('.table-container');
+                scrollToLastRow(tableContainer);
             }
             
             async function logAction(table, dateId, action, details) {
@@ -1718,5 +1749,3 @@
 
 </body>
 </html>
-
-
