@@ -330,23 +330,13 @@
         </header>
 
         <main>
-            <!-- Filters Card -->
-            <div class="card p-4 rounded-2xl mb-8">
-                <div id="filters" class="flex flex-wrap gap-2 justify-center">
-                    <button data-table="obvodny" class="filter-btn active-filter">Обводный</button>
-                    <button data-table="ananas" class="filter-btn">Ананас</button>
-                    <button data-table="gofra" class="filter-btn">Гофра</button>
-                    <button data-table="etiketka" class="filter-btn">Этикетка</button>
-                </div>
-            </div>
-            
-            <!-- Add New Entry Form -->
+            <!-- Add New Entry Form (Now placed above the filters) -->
             <div id="add-entry-container" class="mb-8">
                  <div class="card p-4 sm:p-6 rounded-2xl">
-                    <h2 id="form-title" class="text-2xl font-semibold text-primary mb-6">Добавить новую запись</h2>
+                    <h2 id="form-title" class="text-2xl font-semibold text-primary mb-6">Добавить запись: Этикетка</h2>
                     
-                    <!-- Form for Obvodny -->
-                    <form id="add-obvodny-form" class="space-y-4">
+                    <!-- Form for Obvodny (Hidden by default) -->
+                    <form id="add-obvodny-form" class="space-y-4 hidden">
                         <div class="max-w-xs">
                             <label for="new-date" class="block text-sm font-medium text-secondary">Дата</label>
                             <input type="date" id="new-date" class="mt-1 form-input" required>
@@ -407,7 +397,7 @@
                         <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
                     </form>
 
-                    <!-- Form for Ananas -->
+                    <!-- Form for Ananas (Hidden by default) -->
                     <form id="add-ananas-form" class="space-y-4 hidden">
                         <div class="max-w-xs">
                             <label for="new-ananas-date" class="block text-sm font-medium text-secondary">Дата</label>
@@ -429,7 +419,7 @@
                         <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
                     </form>
 
-                     <!-- Form for Gofra -->
+                     <!-- Form for Gofra (Hidden by default) -->
                     <form id="add-gofra-form" class="space-y-4 hidden">
                         <div class="max-w-xs">
                             <label for="new-gofra-date" class="block text-sm font-medium text-secondary">Дата</label>
@@ -451,8 +441,8 @@
                         <button type="submit" class="btn btn-submit w-full">Добавить запись</button>
                     </form>
 
-                    <!-- Form for Etiketka -->
-                    <form id="add-etiketka-form" class="space-y-4 hidden">
+                    <!-- Form for Etiketka (Active by default) -->
+                    <form id="add-etiketka-form" class="space-y-4">
                         <div class="max-w-xs">
                             <label for="new-etiketka-date" class="block text-sm font-medium text-secondary">Дата</label>
                             <input type="date" id="new-etiketka-date" class="mt-1 form-input" required>
@@ -483,12 +473,23 @@
                 </div>
             </div>
 
+            <!-- Filters Card (Now placed between form and table) -->
+            <div class="card p-4 rounded-2xl mb-8">
+                <div id="filters" class="flex flex-wrap gap-2 justify-center">
+                    <button data-table="obvodny" class="filter-btn">Обводный</button>
+                    <button data-table="ananas" class="filter-btn">Ананас</button>
+                    <button data-table="gofra" class="filter-btn">Гофра</button>
+                    <!-- Etiketka is active by default -->
+                    <button data-table="etiketka" class="filter-btn active-filter">Этикетка</button>
+                </div>
+            </div>
+            
             <!-- Data Table Card -->
             <div class="card p-4 sm:p-6 rounded-2xl">
                  <div id="loading-state" class="text-center p-8 text-secondary">Загрузка данных...</div>
                 <div id="tables-container" class="hidden">
-                    <!-- Obvodny Table -->
-                    <div id="table-obvodny" class="table-container">
+                    <!-- Obvodny Table (Hidden by default) -->
+                    <div id="table-obvodny" class="table-container hidden">
                         <table>
                             <thead>
                                 <tr>
@@ -521,7 +522,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Ananas Table -->
+                    <!-- Ananas Table (Hidden by default) -->
                     <div id="table-ananas" class="table-container hidden">
                         <table>
                            <thead>
@@ -541,7 +542,7 @@
                             </tbody>
                         </table>
                     </div>
-                     <!-- Gofra Table -->
+                     <!-- Gofra Table (Hidden by default) -->
                     <div id="table-gofra" class="table-container hidden">
                         <table>
                            <thead>
@@ -561,8 +562,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Etiketka Table -->
-                    <div id="table-etiketka" class="table-container hidden">
+                    <!-- Etiketka Table (Active by default) -->
+                    <div id="table-etiketka" class="table-container">
                         <table>
                            <thead>
                                 <tr>
